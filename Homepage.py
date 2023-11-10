@@ -78,4 +78,7 @@ if lan == "English":
              - Configure AI Interviewer in different specialties.
              - Configure AI Interviewer in different personalities.""")
 
+
+
+
 # The rest of your code...

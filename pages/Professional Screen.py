@@ -12,6 +12,7 @@ from langchain.vectorstores import FAISS
 import nltk
 from prompts.prompts import templates
 
+
 jd = st.text_area("Please enter the job description here (If you don't have one, enter keywords, such as PostgreSQL or Python instead): ")
 auto_play = st.checkbox("Let AI interviewer speak! (Please don't switch during the interview)")
 

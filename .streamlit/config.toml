@@ -1,4 +1,9 @@
+[openai]
+OPENAI_API_KEY = "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"
+
 [theme]
 base = 'dark'
-primaryColor = 'F63366'
+primaryColor = '#F63366'
 font = 'sans serif'
+backgroundColor = "#000033"
+
