@@ -1,9 +1,6 @@
 import streamlit as st
-from streamlit_lottie import st_lottie
 from typing import Literal
 from dataclasses import dataclass
-import json
-import base64
 from langchain.memory import ConversationBufferMemory
 from langchain.callbacks import get_openai_callback
 from langchain.chat_models import ChatOpenAI
@@ -14,41 +11,20 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 import nltk
 from prompts.prompts import templates
-# Audio
-from speech_recognition.openai_whisper import save_wav_file, transcribe
-from audio_recorder_streamlit import audio_recorder
-from aws.synthesize_speech import synthesize_speech
-from IPython.display import Audio
-
-
-def load_lottiefile(filepath: str):
-    with open(filepath, "r") as f:
-        return json.load(f)
-st_lottie(load_lottiefile("images/welcome.json"), speed=1, reverse=False, loop=True, quality="high", height=300)
-
-#st.markdown("""solutions to potential errors:""")
-with st.expander("""Why did I encounter errors when I tried to talk to the AI Interviewer?"""):
-    st.write("""
-    This is because the app failed to record. Make sure that your microphone is connected and that you have given permission to the browser to access your microphone.""")
 
 jd = st.text_area("Please enter the job description here (If you don't have one, enter keywords, such as PostgreSQL or Python instead): ")
 auto_play = st.checkbox("Let AI interviewer speak! (Please don't switch during the interview)")
 
-#st.toast("4097 tokens is roughly equivalent to around 800 to 1000 words or 3 minutes of speech. Please keep your answer within this limit.")
-
 @dataclass
 class Message:
-    """class for keeping track of interview history."""
     origin: Literal["human", "ai"]
     message: str
 
 def save_vector(text):
     """embeddings"""
-
     nltk.download('punkt')
     text_splitter = NLTKTextSplitter()
     texts = text_splitter.split_text(text)
-     # Create emebeddings
     embeddings = OpenAIEmbeddings()
     docsearch = FAISS.from_texts(texts, embeddings)
     return docsearch
@@ -124,37 +100,22 @@ def answer_call_back():
         # user input
         human_answer = st.session_state.answer
         # transcribe audio
-        if voice:
-            save_wav_file("temp/audio.wav", human_answer)
-            try:
-                input = transcribe("temp/audio.wav")
-                # save human_answer to history
-            except:
-                st.session_state.jd_history.append(Message("ai", "Sorry, I didn't get that."))
-                return "Please try again."
-        else:
-            input = human_answer
+        input = human_answer
 
         st.session_state.jd_history.append(
             Message("human", input)
         )
         # OpenAI answer and save to history
         llm_answer = st.session_state.jd_screen.run(input)
-        # speech synthesis and speak out
-        audio_file_path = synthesize_speech(llm_answer)
-        # create audio widget with autoplay
-        audio_widget = Audio(audio_file_path, autoplay=True)
-        # save audio data to history
         st.session_state.jd_history.append(
             Message("ai", llm_answer)
         )
         st.session_state.token_count += cb.total_tokens
-        return audio_widget
+        return llm_answer
 
 if jd:
     # initialize session states
     initialize_session_state_jd()
-    #st.write(st.session_state.jd_guideline)
     credit_card_placeholder = st.empty()
     col1, col2 = st.columns(2)
     with col1:
@@ -176,23 +137,18 @@ if jd:
         with answer_placeholder:
             voice: bool = st.checkbox("I would like to speak with AI Interviewer")
             if voice:
-                answer = audio_recorder(pause_threshold = 2.5, sample_rate = 44100)
-                #st.warning("An UnboundLocalError will occur if the microphone fails to record.")
+                answer = "Voice input is not supported in this version."
             else:
-                answer = st.chat_input("Your answer")
+                answer = st.text_input("Your answer")
             if answer:
                 st.session_state['answer'] = answer
-                audio = answer_call_back()
+                llm_answer = answer_call_back()
+                st.write("AI Interviewer:", llm_answer)
         with chat_placeholder:
             for answer in st.session_state.jd_history:
                 if answer.origin == 'ai':
-                    if auto_play and audio:
-                        with st.chat_message("assistant"):
-                            st.write(answer.message)
-                            st.write(audio)
-                    else:
-                        with st.chat_message("assistant"):
-                            st.write(answer.message)
+                    with st.chat_message("assistant"):
+                        st.write(answer.message)
                 else:
                     with st.chat_message("user"):
                         st.write(answer.message)

@@ -1,8 +1,6 @@
 # langchain: https://python.langchain.com/
 from dataclasses import dataclass
 import streamlit as st
-from speech_recognition.openai_whisper import save_wav_file, transcribe
-from audio_recorder_streamlit import audio_recorder
 from langchain.callbacks import get_openai_callback
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
@@ -10,7 +8,6 @@ from langchain.chains import RetrievalQA, ConversationChain
 from langchain.prompts.prompt import PromptTemplate
 from prompts.prompts import templates
 from typing import Literal
-from aws.synthesize_speech import synthesize_speech
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.text_splitter import NLTKTextSplitter
@@ -18,22 +15,19 @@ from PyPDF2 import PdfReader
 from prompts.prompt_selector import prompt_sector
 from streamlit_lottie import st_lottie
 import json
-from IPython.display import Audio
 import nltk
-
 
 def load_lottiefile(filepath: str):
     with open(filepath, "r") as f:
         return json.load(f)
+
 st_lottie(load_lottiefile("images/welcome.json"), speed=1, reverse=False, loop=True, quality="high", height=300)
 
 #st.markdown("""solutions to potential errors:""")
 with st.expander("""Why did I encounter errors when I tried to talk to the AI Interviewer?"""):
     st.write("""This is because the app failed to record. Make sure that your microphone is connected and that you have given permission to the browser to access your microphone.""")
 with st.expander("""Why did I encounter errors when I tried to upload my resume?"""):
-    st.write("""
-    Please make sure your resume is in pdf format. More formats will be supported in the future.
-    """)
+    st.write("""Please make sure your resume is in pdf format. More formats will be supported in the future.""")
 
 st.markdown("""\n""")
 position = st.selectbox("Select the position you are applying for", ["Data Analyst", "Software Engineer", "Marketing"])
@@ -135,31 +129,18 @@ def initialize_session_state_resume():
 def answer_call_back():
     with get_openai_callback() as cb:
         human_answer = st.session_state.answer
-        if voice:
-            save_wav_file("temp/audio.wav", human_answer)
-            try:
-                input = transcribe("temp/audio.wav")
-                # save human_answer to history
-            except:
-                st.session_state.resume_history.append(Message("ai", "Sorry, I didn't get that."))
-                return "Please try again."
-        else:
-            input = human_answer
+        input = human_answer
         st.session_state.resume_history.append(
             Message("human", input)
         )
         # OpenAI answer and save to history
         llm_answer = st.session_state.resume_screen.run(input)
-        # speech synthesis and speak out
-        audio_file_path = synthesize_speech(llm_answer)
         # create audio widget with autoplay
-        audio_widget = Audio(audio_file_path, autoplay=True)
-        # save audio data to history
         st.session_state.resume_history.append(
             Message("ai", llm_answer)
         )
         st.session_state.token_count += cb.total_tokens
-        return audio_widget
+        return llm_answer
 
 if position and resume:
     # intialize session state
@@ -177,7 +158,7 @@ if position and resume:
     if guideline:
         st.markdown(st.session_state.resume_guideline)
     if feedback:
-        evaluation = st.session_state.resume_feedback.run("please give evalution regarding the interview")
+        evaluation = st.session_state.resume_feedback.run("Please give an evaluation regarding the interview")
         st.markdown(evaluation)
         st.download_button(label="Download Interview Feedback", data=evaluation, file_name="interview_feedback.txt")
         st.stop()
@@ -185,28 +166,24 @@ if position and resume:
         with answer_placeholder:
             voice: bool = st.checkbox("I would like to speak with AI Interviewer!")
             if voice:
-                answer = audio_recorder(pause_threshold=2, sample_rate=44100)
-                #st.warning("An UnboundLocalError will occur if the microphone fails to record.")
+                answer = "Voice input is not supported in this version."
             else:
-                answer = st.chat_input("Your answer")
+                answer = st.text_input("Your answer")
             if answer:
                 st.session_state['answer'] = answer
-                audio = answer_call_back()
-
+                llm_answer = answer_call_back()
+                st.write("AI Interviewer:", llm_answer)
         with chat_placeholder:
             for answer in st.session_state.resume_history:
                 if answer.origin == 'ai':
-                    if auto_play and audio:
-                        with st.chat_message("assistant"):
-                            st.write(answer.message)
-                            st.write(audio)
-                    else:
-                        with st.chat_message("assistant"):
-                            st.write(answer.message)
+                    with st.chat_message("assistant"):
+                        st.write(answer.message)
                 else:
                     with st.chat_message("user"):
                         st.write(answer.message)
 
         credit_card_placeholder.caption(f"""
-                        Progress: {int(len(st.session_state.resume_history) / 30 * 100)}% completed.""")
-
+                        Progress: {int(len(st.session_state.resume_history) / 30 * 100)}% completed.
+        """)
+else:
+    st.info("Please submit a resume and select a position to start the interview.")
