@@ -47,7 +47,7 @@ def initialize_session_state():
         st.session_state.memory = ConversationBufferMemory()
     if "guideline" not in st.session_state:
         llm = ChatOpenAI(
-            model_name="gpt-3.5-turbo",
+            model_name="text-davinci-003",
             temperature=0.8, )
         st.session_state.guideline = RetrievalQA.from_chain_type(
             llm=llm,
@@ -57,7 +57,7 @@ def initialize_session_state():
     # llm chain and memory
     if "conversation" not in st.session_state:
         llm = ChatOpenAI(
-        model_name = "gpt-3.5-turbo",
+        model_name = "text-davinci-003",
         temperature = 0.8,)
         PROMPT = PromptTemplate(
             input_variables=["history", "input"],
@@ -82,7 +82,7 @@ def initialize_session_state():
                                                        memory=st.session_state.memory)
     if "feedback" not in st.session_state:
         llm = ChatOpenAI(
-        model_name = "gpt-3.5-turbo",
+        model_name = "text-davinci-003",
         temperature = 0.5,)
         st.session_state.feedback = ConversationChain(
             prompt=PromptTemplate(input_variables=["history", "input"], template=templates.feedback_template),
