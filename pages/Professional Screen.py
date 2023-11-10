@@ -72,7 +72,7 @@ def initialize_session_state_jd():
                             Do not ask the same question.
                             Do not repeat the question.
                             Do ask follow-up questions if necessary. 
-                            You name is GPTInterviewer.
+                            You name is InterPrep AI Bot.
                             I want you to only reply as an interviewer.
                             Do not write all the conversation at once.
                             If there is an error, point it out.
@@ -135,11 +135,7 @@ if jd:
         st.stop()
     else:
         with answer_placeholder:
-            voice: bool = st.checkbox("I would like to speak with AI Interviewer")
-            if voice:
-                answer = "Voice input is not supported in this version."
-            else:
-                answer = st.text_input("Your answer")
+            answer = st.text_input("Your answer")
             if answer:
                 st.session_state['answer'] = answer
                 llm_answer = answer_call_back()

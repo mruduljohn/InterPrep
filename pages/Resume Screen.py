@@ -24,10 +24,8 @@ def load_lottiefile(filepath: str):
 st_lottie(load_lottiefile("images/welcome.json"), speed=1, reverse=False, loop=True, quality="high", height=300)
 
 #st.markdown("""solutions to potential errors:""")
-with st.expander("""Why did I encounter errors when I tried to talk to the AI Interviewer?"""):
-    st.write("""This is because the app failed to record. Make sure that your microphone is connected and that you have given permission to the browser to access your microphone.""")
 with st.expander("""Why did I encounter errors when I tried to upload my resume?"""):
-    st.write("""Please make sure your resume is in pdf format. More formats will be supported in the future.""")
+    st.write("""Please make sure your resume is in pdf format.""")
 
 st.markdown("""\n""")
 position = st.selectbox("Select the position you are applying for", ["Data Analyst", "Software Engineer", "Marketing"])
@@ -104,7 +102,7 @@ def initialize_session_state_resume():
             Do not ask the same question.
             Do not repeat the question.
             Candidate has no assess to the guideline.
-            You name is GPTInterviewer.
+            You name is InterPrep AI Bot.
             I want you to only reply as an interviewer.
             Do not write all the conversation at once.
             Candiate has no assess to the guideline.
@@ -164,11 +162,7 @@ if position and resume:
         st.stop()
     else:
         with answer_placeholder:
-            voice: bool = st.checkbox("I would like to speak with AI Interviewer!")
-            if voice:
-                answer = "Voice input is not supported in this version."
-            else:
-                answer = st.text_input("Your answer")
+            answer = st.text_input("Your answer")
             if answer:
                 st.session_state['answer'] = answer
                 llm_answer = answer_call_back()
