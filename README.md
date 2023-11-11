@@ -42,7 +42,7 @@ To begin your AI Interviewer experience, follow these simple steps:
 
 ## Contact
 
-- GitHub: [jiatastic](https://github.com/mruduljohn)
+- GitHub: [mruduljohn](https://github.com/mruduljohn)
 
 <!-- ## Acknowledgments
 
