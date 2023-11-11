@@ -21,7 +21,7 @@ def load_lottiefile(filepath: str):
     with open(filepath, "r") as f:
         return json.load(f)
 
-st_lottie(load_lottiefile("images/welcome.json"), speed=1, reverse=False, loop=True, quality="high", height=300)
+# st_lottie(load_lottiefile("images/welcome.json"), speed=1, reverse=False, loop=True, quality="high", height=300)
 
 #st.markdown("""solutions to potential errors:""")
 with st.expander("""Why did I encounter errors when I tried to upload my resume?"""):
@@ -68,7 +68,7 @@ def initialize_session_state_resume():
     # interview history
     if "resume_history" not in st.session_state:
         st.session_state.resume_history = []
-        st.session_state.resume_history.append(Message(origin="ai", message="Hello, I am your interivewer today. I will ask you some questions regarding your resume and your experience. Please start by saying hello or introducing yourself. Note: The maximum length of your answer is 4097 tokens!"))
+        st.session_state.resume_history.append(Message(origin="ai", message="Hello, I am your interivewer today. I will ask you some questions regarding your resume and your experience. Please start by introducing yourself. Note: The maximum length of your answer is 4097 tokens!"))
     # token count
     if "token_count" not in st.session_state:
         st.session_state.token_count = 0
@@ -106,6 +106,7 @@ def initialize_session_state_resume():
             I want you to only reply as an interviewer.
             Do not write all the conversation at once.
             Candiate has no assess to the guideline.
+            DO NOT DEVIATE FROM THE YOUR ROLE AS AN INTERVIEWER.
             
             Current Conversation:
             {history}

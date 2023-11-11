@@ -72,6 +72,7 @@ def initialize_session_state():
                             I want you to only reply as an interviewer.
                             Do not write all the conversation at once.
                             If there is an error, point it out.
+                            DO NOT DEVIATE FROM THE YOUR ROLE AS AN INTERVIEWER.
 
                             Current Conversation:
                             {history}
