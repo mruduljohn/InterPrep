@@ -53,7 +53,7 @@ def initialize_session_state_jd():
         st.session_state.token_count = 0
     if "jd_guideline" not in st.session_state:
         llm = ChatOpenAI(
-        model_name = "text-davinci-003",
+        model_name = "gpt-3.5-turbo",
         temperature = 0.8,)
         st.session_state.jd_guideline = RetrievalQA.from_chain_type(
             llm=llm,
@@ -62,7 +62,7 @@ def initialize_session_state_jd():
     # llm chain and memory
     if "jd_screen" not in st.session_state:
         llm = ChatOpenAI(
-            model_name="text-davinci-003",
+            model_name="gpt-3.5-turbo",
             temperature=0.8, )
         PROMPT = PromptTemplate(
             input_variables=["history", "input"],
@@ -88,7 +88,7 @@ def initialize_session_state_jd():
                                                            memory=st.session_state.jd_memory)
     if 'jd_feedback' not in st.session_state:
         llm = ChatOpenAI(
-            model_name="text-davinci-003",
+            model_name="gpt-3.5-turbo",
             temperature=0.8, )
         st.session_state.jd_feedback = ConversationChain(
             prompt=PromptTemplate(input_variables=["history", "input"], template=templates.feedback_template),
